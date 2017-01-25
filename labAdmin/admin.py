@@ -22,7 +22,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 admin.site.register(UserProfile, UserProfileAdmin)
 
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'role_kind','valid',)
+    list_display = ('name', 'valid',)
     ordering = ('name',)
 
 admin.site.register(Role, RoleAdmin)
@@ -43,7 +43,7 @@ admin.site.register(Category, CategoryAdmin)
 
 
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'hourlyCost', 'category', 'mac',)
+    list_display = ('name', 'hourlyCost', 'category', 'mac', 'last_activity')
     ordering = ('name',)
 
 admin.site.register(Device, DeviceAdmin)

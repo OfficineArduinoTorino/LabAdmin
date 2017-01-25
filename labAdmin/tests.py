@@ -7,45 +7,29 @@ from django.urls import reverse
 from django.utils import timezone, dateparse
 
 from .models import (
-    Card, Group, LogAccess, Role, TimeSlot, UserProfile, TimeSlot,
-    LogCredits, Category, Device
+    Card, Group, LogAccess, Role, TimeSlot, UserProfile,
+    LogCredits, Category, Device, LogDevice
 )
 
 
 class TestLabAdmin(TestCase):
     @classmethod
     def setUpTestData(cls):
-        daily_timeslot = TimeSlot.objects.create(
-            name="thursday full day",
-            weekday_start=4,
-            weekday_end=4,
-            hour_start=dateparse.parse_time("8:0:0"),
-            hour_end=dateparse.parse_time("23:0:0"),
-        )
-        reduced_timeslot = TimeSlot.objects.create(
-            name="thursday reduced",
-            weekday_start=4,
-            weekday_end=4,
-            hour_start=dateparse.parse_time("14:0:0"),
-            hour_end=dateparse.parse_time("20:0:0"),
+        full_timeslot = TimeSlot.objects.create(
+            name="any day",
+            weekday_start=1,
+            weekday_end=7,
+            hour_start=dateparse.parse_time("00:00:00"),
+            hour_end=dateparse.parse_time("23:59:59"),
         )
 
-        fablab_role = Role.objects.create(
-            name="Fablab Access",
-            role_kind=0
+        full_devices_role = Role.objects.create(
+            name="Devices Access",
         )
-        fablab_role.time_slots.add(daily_timeslot)
+        full_devices_role.time_slots.add(full_timeslot)
 
-        guest_role = Role.objects.create(
-            name="Guest Access",
-            role_kind=0
-        )
-        guest_role.time_slots.add(reduced_timeslot)
-
-        fab_guest_group = Group.objects.create(name="Fablab Guest")
-        fab_guest_group.roles.add(fablab_role, guest_role)
-        guest_group = Group.objects.create(name="Guest")
-        guest_group.roles.add(guest_role)
+        devices_group = Group.objects.create(name="Full Devices access")
+        devices_group.roles.add(full_devices_role)
 
         card = Card.objects.create(nfc_id=123456)
         user = User.objects.create(username="alessandro.monaco")
@@ -56,11 +40,22 @@ class TestLabAdmin(TestCase):
             needSubscription=False,
             endSubscription=timezone.now()
         )
-        u.groups.add(guest_group)
+        u.groups.add(devices_group)
+
+        noperm_card = Card.objects.create(nfc_id=654321)
+        noperm_user = User.objects.create(username="nopermission")
+        noperm_up = UserProfile.objects.create(
+            user=noperm_user,
+            card=noperm_card,
+            name="No Permission",
+            needSubscription=False,
+            endSubscription=timezone.now()
+        )
 
         category = Category.objects.create(
             name="category"
         )
+        full_devices_role.categories.add(category)
 
         device = Device.objects.create(
             name="device",
@@ -70,7 +65,9 @@ class TestLabAdmin(TestCase):
         )
 
         cls.card = card
+        cls.noperm_card = noperm_card
         cls.userprofile = u
+        cls.noperm_userprofile = noperm_up
         cls.device = device
 
     def test_login_by_nfc(self):
@@ -101,11 +98,12 @@ class TestLabAdmin(TestCase):
         self.assertFalse(LogAccess.objects.all().exists())
 
         client = Client()
+        auth = 'Token {}'.format(self.device.token)
         url = reverse('open-door-nfc')
         data = {
             'nfc_id': self.card.nfc_id
         }
-        response = client.post(url, data, format='json')
+        response = client.post(url, data, format='json', HTTP_AUTHORIZATION=auth)
         self.assertEqual(response.status_code, 201)
         response_data = json.loads(str(response.content, encoding='utf8'))
         self.assertIn('users', response_data)
@@ -115,19 +113,22 @@ class TestLabAdmin(TestCase):
         self.assertEqual(user_profile['name'], self.userprofile.name)
         self.assertEqual(response_data['type'], 'other')
         self.assertIn('datetime', response_data)
-        self.assertEqual(response_data['open'], self.userprofile.can_open_door_now())
+        self.assertEqual(response_data['open'], self.userprofile.can_use_device_now(self.device))
 
         users = UserProfile.objects.all()
         logaccess = LogAccess.objects.filter(users=users, card=self.card)
         self.assertTrue(logaccess.exists())
 
+        response = client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 403)
+
         data = {
             'nfc_id': 0
         }
-        response = client.post(url, data, format='json')
+        response = client.post(url, data, format='json', HTTP_AUTHORIZATION=auth)
         self.assertEqual(response.status_code, 400)
 
-        response = client.get(url)
+        response = client.get(url, HTTP_AUTHORIZATION=auth)
         self.assertEqual(response.status_code, 405)
 
     def test_get_card_credits(self):
@@ -243,6 +244,222 @@ class TestLabAdmin(TestCase):
         device.save()
         device = Device.objects.get(pk=device.pk)
         self.assertEqual(old_token, device.token)
+
+    def test_device_stop(self):
+        now = timezone.now()
+        logdevice = LogDevice.objects.create(
+            device=self.device,
+            user=self.userprofile,
+            bootDevice=now,
+            startWork=now,
+            shutdownDevice=now,
+            finishWork=now,
+            hourlyCost=self.device.hourlyCost,
+        )
+        logdevice.stop()
+        self.assertEqual(logdevice.startWork, logdevice.bootDevice)
+        self.assertTrue(logdevice.startWork < logdevice.finishWork)
+        self.assertEqual(logdevice.finishWork, logdevice.shutdownDevice)
+
+    def test_logdevice_pricework(self):
+        now = timezone.now()
+        logdevice = LogDevice.objects.create(
+            device=self.device,
+            user=self.userprofile,
+            bootDevice=now,
+            startWork=now,
+            shutdownDevice=now,
+            finishWork=now,
+            hourlyCost=self.device.hourlyCost,
+        )
+
+        self.assertEqual(logdevice.priceWork(), 'inWorking...')
+        logdevice.stop()
+        logdevice.finishWork = logdevice.finishWork + datetime.timedelta(seconds=60)
+        logdevice.save()
+        self.assertEqual(logdevice.priceWork(), 0.02)
+
+    def test_device_last_activity(self):
+        self.assertEqual(self.device.last_activity(), '')
+
+        now = timezone.now()
+        logdevice = LogDevice.objects.create(
+            device=self.device,
+            user=self.userprofile,
+            bootDevice=now,
+            startWork=now,
+            shutdownDevice=now,
+            finishWork=now,
+            hourlyCost=self.device.hourlyCost,
+        )
+
+        self.assertTrue(logdevice.inWorking)
+        self.assertTrue(self.device.last_activity() >= logdevice.startWork)
+
+        logdevice.stop()
+        self.assertFalse(logdevice.inWorking)
+        self.assertEqual(self.device.last_activity(), logdevice.finishWork)
+
+    def test_device_start_use(self):
+        client = Client()
+        auth = 'Token {}'.format(self.device.token)
+        url = reverse('device-use-start')
+
+        self.assertFalse(LogDevice.objects.filter(device=self.device).exists())
+
+        # not authenticated
+        data = {
+            'nfc_id': self.card.nfc_id,
+        }
+        response = client.post(url, data)
+        self.assertEqual(response.status_code, 403)
+
+        # invalid data
+        data = {
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 400)
+
+        data = {
+            'nfc_id': 0
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 400)
+
+        # not enough permissions
+        data = {
+            'nfc_id': self.noperm_card.nfc_id,
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 400)
+
+        # ok
+        data = {
+            'nfc_id': self.card.nfc_id,
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(LogDevice.objects.count(), 1)
+        self.assertTrue(
+            LogDevice.objects.filter(device=self.device, user=self.userprofile, inWorking=True).exists()
+        )
+        self.assertJSONEqual(response.content.decode('utf-8'), {
+            'cost': self.device.hourlyCost
+        })
+
+        # ok too but the previous LogDevice is closed
+        data = {
+            'nfc_id': self.card.nfc_id,
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(LogDevice.objects.count(), 2)
+        self.assertEqual(
+            LogDevice.objects.filter(device=self.device, user=self.userprofile, inWorking=True).count(), 1
+        )
+
+    def test_device_stop_use(self):
+        client = Client()
+        auth = 'Token {}'.format(self.device.token)
+        url = reverse('device-use-stop')
+
+        self.assertFalse(LogDevice.objects.filter(device=self.device).exists())
+
+        # not authenticated
+        data = {
+            'nfc_id': self.card.nfc_id,
+        }
+        response = client.post(url, data)
+        self.assertEqual(response.status_code, 403)
+
+        # invalid data
+        data = {
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 400)
+
+        data = {
+            'nfc_id': 0
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 400)
+
+        # no open logdevice
+        data = {
+            'nfc_id': self.card.nfc_id,
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 400)
+
+        now = timezone.now()
+        LogDevice.objects.create(
+            device=self.device,
+            user=self.userprofile,
+            startWork=now,
+            bootDevice=now,
+            shutdownDevice=now,
+            finishWork=now,
+            hourlyCost="0.0"
+        )
+
+        # ok
+        data = {
+            'nfc_id': self.card.nfc_id,
+        }
+        response = client.post(url, data, HTTP_AUTHORIZATION=auth)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(LogDevice.objects.count(), 1)
+        self.assertTrue(
+            LogDevice.objects.filter(device=self.device, user=self.userprofile, inWorking=False).exists()
+        )
+        self.assertJSONEqual(response.content.decode('utf-8'), {
+            'cost': 0
+        })
+
+    def test_user_can_use_device_now(self):
+        self.assertTrue(self.userprofile.can_use_device_now(self.device))
+
+    def test_user_can_use_device_now_invalid_role(self):
+        timeslot = TimeSlot.objects.create(
+            name="any day for invalid role",
+            weekday_start=1,
+            weekday_end=7,
+            hour_start=dateparse.parse_time("00:00:00"),
+            hour_end=dateparse.parse_time("23:59:59"),
+        )
+
+        role = Role.objects.create(
+            name="invalid role",
+            valid=False
+        )
+        role.time_slots.add(timeslot)
+
+        group = Group.objects.create(name="group with invalid role")
+        group.roles.add(role)
+        self.noperm_userprofile.groups.add(group)
+        self.assertFalse(self.noperm_userprofile.can_use_device_now(self.device))
+
+    def test_user_can_use_device_now_no_group(self):
+        self.assertFalse(self.noperm_userprofile.can_use_device_now(self.device))
+
+    def test_user_can_use_device_role_not_categories(self):
+        timeslot = TimeSlot.objects.create(
+            name="any day",
+            weekday_start=1,
+            weekday_end=7,
+            hour_start=dateparse.parse_time("00:00:00"),
+            hour_end=dateparse.parse_time("23:59:59"),
+        )
+
+        role = Role.objects.create(
+            name="role",
+        )
+        role.time_slots.add(timeslot)
+
+        group = Group.objects.create(name="group")
+        group.roles.add(role)
+        self.noperm_userprofile.groups.add(group)
+        self.assertFalse(self.noperm_userprofile.can_use_device_now(self.device))
 
 
 class TimeSlotTests(TestCase):

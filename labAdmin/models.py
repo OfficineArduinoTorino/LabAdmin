@@ -93,18 +93,11 @@ class UserProfile(models.Model):
     def subscriptionExpired(self):
         return self.needSubscription and self.endSubscription < timezone.now()
 
-    def can_open_door_now(self):
+    def can_use_device_now(self, device):
         roles = self.groups.values_list('roles__pk', flat=True).distinct()
         return TimeSlot.objects.can_now().filter(
-            role__in=roles, role__role_kind=0, role__valid=True
+            role__in=roles, role__valid=True, role__categories=device.category
         ).exists()
-
-    def can_use_device_now(self, device):
-        try:
-            return TimeSlot.objects.can_now().filter(role__group__user=self,role__role_kind=1, role__category_device=device.category_device, role__valid=True).exists()
-        except:
-            # Any Exception Return False
-            return False
 
     def displaygroups(self):
         data = []
@@ -129,57 +122,20 @@ class Group(models.Model):
     # define Many-To-Many fields
     roles=models.ManyToManyField('Role')
 
-    def can_open_door_now(self):
-        # Define groups and role
-        try:
-            return TimeSlot.objects.can_now().filter(role__group=self,role__role_kind=0,role__valid=True).exists()
-        except:
-            # Any Exception return False
-            return False
-
-    def can_use_device_now(self, device):
-        try:
-            return TimeSlot.objects.can_now().filter(role__group=self,role__role_kind=1, role__category_device=device.category_device, role__valid=True).exists()
-        except:
-            # Any Exception return False
-            return False
-
     def __str__(self):
-        return "%s" % (self.name)
+        return self.name
 
 class Role(models.Model):
-    # define role kind choices
-    ROLE_KIND_CHOICES = (
-        (0, "Door Access"),
-        (1, "Use Device"),
-    )
-
     name=models.CharField(max_length=50)
 
-    role_kind=models.IntegerField(choices=ROLE_KIND_CHOICES)
     time_slots=models.ManyToManyField(TimeSlot)
     valid=models.BooleanField(default=True)
 
     # define Many-To-Many Fieds
     categories=models.ManyToManyField('Category',blank=True)
 
-    def can_open_door_now(self):
-        # Define groups and role
-        try:
-            return TimeSlot.objects.can_now().filter(role=self, role__role_kind=0,role__valid=True).exists()
-        except:
-            # Any Exception return False
-            return False
-
-    def can_use_device_now(self, device):
-        try:
-            return TimeSlot.objects.can_now().filter(role=self, role__role_kind=1, role__category_device=device.category_device, role__valid=True).exists()
-        except:
-            # Any Exception Return False
-            return False
-
     def __str__(self):
-        return "%s - %s" % (self.name, self.ROLE_KIND_CHOICES[self.role_kind][1])
+        return self.name
 
 class Device(models.Model):
     name = models.CharField(max_length=100)
@@ -190,6 +146,14 @@ class Device(models.Model):
 
     def __str__(self):
         return "%010d - %s" %(self.id, self.name)
+
+    def last_activity(self):
+        logdevice = self.logdevice_set.order_by('-id').first()
+        if not logdevice:
+            return ''
+        if logdevice.inWorking:
+            return timezone.now()
+        return logdevice.finishWork
 
     def save(self, *args, **kwargs):
         if not self.token:
@@ -234,13 +198,18 @@ class LogDevice(models.Model):
     inWorking=models.BooleanField(default=True)
 
     def priceWork(self):
-        c = (finishWork-startWork)
-        duration = 0.01*decimal.Decimal((c.days*24+c.seconds/3600)*100)
-        return 'inWorking...' if self.inWorking else self.hourlyCost*duration
+        if self.inWorking:
+            return 'inWorking...'
+        delta = self.finishWork - self.startWork
+        duration = delta.total_seconds() / 3600
+        return round(self.hourlyCost * duration, 2)
 
     def stop(self):
         n = timezone.now()
-        self.finishWork = self.shutdownDevice = n
+        self.inWorking = False
+        self.finishWork = n
+        self.shutdownDevice = n
+        self.save(update_fields=['finishWork', 'shutdownDevice', 'inWorking'])
 
     def __str__(self):
         return "user: %s\ndevice: %s\nboot: %s\nstart: %s\ninWorking: %s\nHourlyCost: %f" %(self.user, self.device, self.bootDevice, self.startWork, "yes" if self.inWorking else "no\nshutdown: %s\nfinish: %s"%(self.shutdownDevice, self.finishWork), self.hourlyCost)
