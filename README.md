@@ -4,10 +4,14 @@ Manage user rights to access the lab and the machines
 
 ## Quickstart
 
-Install the labAdmin:
+Install the labAdmin (`python3` and `virtualenv` required):
 
 ```
+virtualenv -p python3 env
+source env/bin/activate
 python setup.py install
+testSite/manage.py migrate
+testSite/manage.py createsuperuser
 ```
 
 Add it to the installed apps:
@@ -32,7 +36,15 @@ urlpatterns = [
 
 Profit!
 
-### Settings
+## Run Server
+
+Running server for development:
+
+`testSite/manage.py runserver 0.0.0.0:8000`
+
+By default the server runs on `localhost:8000`
+
+## Settings
 
 The optional MQTT integration has the following settings:
 
