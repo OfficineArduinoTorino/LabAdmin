@@ -1,0 +1,43 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools %}
+{% if not is_popup %}
+  <ul class="object-tools">
+    {% block object-tools-items %}
+    {% if change %}
+    <li>
+        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+        <a href="{% add_preserved_filters history_url %}" class="historylink">{% trans "History" %}</a>
+    </li>
+    {% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif %}
+    {% endif %}
+	{% if labadmin_available_devices %}<li><a id="labadmin-available-devices-toggle" href="" class="viewsitelink">{% trans "Available Devices" %}</a></li>
+	<div id="labadmin-available-devices" style="display: none">
+		<table>
+		<tr>
+		<th>IP</th>
+		<th>MAC</th>
+		</tr>
+		{% for ip, mac in labadmin_available_devices %}
+		<tr>
+		<td>{{ ip }}</td>
+		<td>{{ mac }}</td>
+		</tr>
+		{% endfor %}
+		</table>
+	</div>
+	{% endif %}
+    {% endblock %}
+  </ul>
+{% endif %}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+<script type="text/javascript">
+django.jQuery('#labadmin-available-devices-toggle').click(function(event) {
+    event.preventDefault();
+    django.jQuery('#labadmin-available-devices').toggle();
+});
+</script>
+{% endblock %}

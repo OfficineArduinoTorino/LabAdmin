@@ -14,6 +14,8 @@ from labAdmin.models import (
     UserProfile,
 )
 
+from .arp import get_neighbours
+
 
 class CardAdmin(admin.ModelAdmin):
     list_display = ('nfc_id', 'user', 'credits')
@@ -67,6 +69,22 @@ admin.site.register(Category, CategoryAdmin)
 class DeviceAdmin(admin.ModelAdmin):
     list_display = ('name', 'hourlyCost', 'category', 'mac', 'last_activity')
     ordering = ('name',)
+    change_form_template = 'labadmin/admin/device_change_form.html'
+    add_form_template = 'labadmin/admin/device_change_form.html'
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['labadmin_available_devices'] = get_neighbours()
+        return super(DeviceAdmin, self).change_view(
+            request, object_id, form_url, extra_context=extra_context
+        )
+
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['labadmin_available_devices'] = get_neighbours()
+        return super(DeviceAdmin, self).add_view(
+            request, form_url, extra_context=extra_context
+        )
 
 admin.site.register(Device, DeviceAdmin)
 
