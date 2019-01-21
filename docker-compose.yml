@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=labadmin
+      - MYSQL_USER=labadmin
+      - MYSQL_PASSWORD=apasswordforlabadmin
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+  web:
+    build: .
+    command: gunicorn -w 2 -b 0.0.0.0:8000 djangolabadmin.wsgi
+    volumes:
+      - .:/www
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
