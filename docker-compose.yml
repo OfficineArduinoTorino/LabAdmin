@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: mysql:5.7
+    image: yobasystems/alpine-mariadb:arm32v7 # remove :arm32v7 if not on RaspberryPi
     environment:
       - MYSQL_DATABASE=labadmin
       - MYSQL_USER=labadmin
