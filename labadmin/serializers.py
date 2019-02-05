@@ -1,4 +1,4 @@
-from labAdmin.models import (
+from labadmin.models import (
     Card, UserProfile
 )
 

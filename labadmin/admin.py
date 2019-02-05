@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 
-from labAdmin.models import (
+from labadmin.models import (
     Card,
     Category,
     Device,

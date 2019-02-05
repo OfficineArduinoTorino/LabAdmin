@@ -137,7 +137,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'corsheaders',
     'versatileimagefield',
-    'labAdmin',
+    'labadmin',
 ]
 ```
 
@@ -199,7 +199,7 @@ from django.contrib.auth import views as auth_views
 
 labadminpatterns = [
     url(r'admin/', admin.site.urls),
-    url(r'^labAdmin/', include('labAdmin.urls')),
+    url(r'^labadmin/', include('labadmin.urls')),
 
     url(r'^accounts/login/$', auth_views.login, {'template_name': 'labadmin/login.html'}, name='login'),
     url(r'^accounts/logout/$', auth_views.logout, name='logout'),

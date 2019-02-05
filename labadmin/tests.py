@@ -459,7 +459,7 @@ class TestLabAdmin(TestCase):
             mac='00:00:00:00:00:00',
         )
         factory = RequestFactory()
-        request = factory.get('/admin/labAdmin/device/')
+        request = factory.get('/admin/labadmin/device/')
         request.user = self.card.userprofile.user
         response = sketch.render(device, request)
         self.assertEqual(response.status_code, 200)

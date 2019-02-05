@@ -3,7 +3,7 @@ import sys
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'testSite.settings'
 test_dir = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(test_dir, 'labAdmin'))
+sys.path.insert(0, os.path.join(test_dir, 'labadmin'))
 sys.path.insert(0, os.path.join(test_dir, 'testSite'))
 
 import django
@@ -15,7 +15,7 @@ def runtests():
     test_runner = TestRunner(verbosity=1, interactive=True)
     if hasattr(django, 'setup'):
         django.setup()
-    failures = test_runner.run_tests(['labAdmin'])
+    failures = test_runner.run_tests(['labadmin'])
     sys.exit(bool(failures))
 
 if __name__ == '__main__':

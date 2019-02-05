@@ -8,17 +8,17 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version = '0.4.3'
+version = '0.5.1'
 
 setup(
-    name='labAdmin',
+    name='labadmin',
     version=version,
     description="""A django app to manage your Fablab""",
     author='Officine Torino',
     author_email='d.gomba@officine.cc',
-    url='https://github.com/OfficineArduinoTorino/LabAdmin.git',
+    url='https://github.com/OfficineArduinoTorino/labadmin.git',
     packages=[
-        'labAdmin',
+        'labadmin',
     ],
     include_package_data=True,
     install_requires=[

@@ -2,5 +2,5 @@ from __future__ import unicode_literals
 
 from django.apps import AppConfig
 
-class labAdminConfig(AppConfig):
-    name = 'labAdmin'
+class labadminConfig(AppConfig):
+    name = 'labadmin'

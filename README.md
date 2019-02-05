@@ -6,7 +6,7 @@ In this Readme you can follow the tutorial to set it up on a PC or Raspberry Pi.
 
 ## Installation
 
-If you are going to deploy labAdmin from scratch on a new Django installation you have two choices:
+If you are going to deploy labadmin from scratch on a new Django installation you have two choices:
 
 - follow the [Tutorial](docs/tutorial.md)
 - use the [Ansible role ](https://github.com/OfficineArduinoTorino/ansible-labadmin/)

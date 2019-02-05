@@ -24,7 +24,7 @@ import httplib
 baseurl='<yourHost>'
 
 #taken from urls.py in labadmin repository on github
-urls={'doorNFC':'/labadmin/labAdmin/opendoorbynfc/','userUpd':'/labadmin/labAdmin\updateUsers/','id':'/labadmin/labAdmin/user/identity/','nfcUs':'/labadmin/labAdmin/nfc/users/','cred':'labadmin/labAdmin/card/credits/'}
+urls={'doorNFC':'/labadmin/labadmin/opendoorbynfc/','userUpd':'/labadmin/labadmin\updateUsers/','id':'/labadmin/labadmin/user/identity/','nfcUs':'/labadmin/labadmin/nfc/users/','cred':'labadmin/labadmin/card/credits/'}
 
 data={}
 
