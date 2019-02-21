@@ -6,10 +6,33 @@ In this Readme you can follow the tutorial to set it up on a PC or Raspberry Pi.
 
 ## Installation
 
-If you are going to deploy labadmin from scratch on a new Django installation you have two choices:
+If you are going to deploy labadmin from scratch on a new Django installation you have three choices:
 
 - follow the [Tutorial](docs/tutorial.md)
-- use the [Ansible role ](https://github.com/OfficineArduinoTorino/ansible-labadmin/)
+- use the [Ansible role](https://github.com/OfficineArduinoTorino/ansible-labadmin/)
+- use [docker](https://github.com/OfficineArduinoTorino/docker-labadmin/)
+
+## pip package
+
+This repo is ready to generate a pip package. Follow [the instructions here](https://packaging.python.org/tutorials/packaging-projects/#create-an-account) to get it published.
+
+tl;dr
+
+check dependencies, install twine (do it once):
+```
+python3 -m pip install --user --upgrade setuptools wheel
+python3 -m pip install --user --upgrade twine
+
+```
+Every time you have a new build, generate package:
+```
+python3 setup.py sdist bdist_wheel
+```
+and upload:
+```
+python3 -m twine upload dist/*
+```
+
 
 ## Upgrade to a newer release
 
