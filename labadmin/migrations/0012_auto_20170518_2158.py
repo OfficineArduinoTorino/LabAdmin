@@ -9,7 +9,7 @@ import versatileimagefield.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labAdmin', '0011_sketch'),
+        ('labadmin', '0011_sketch'),
     ]
 
     operations = [

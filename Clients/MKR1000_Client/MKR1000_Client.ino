@@ -75,7 +75,7 @@ void PostToServer(String nfc_tag) {
   root.printTo(output);
 
   if (client.connect(SERVER, 8443)) {
-    client.println("POST /labadmin/labAdmin/opendoorbynfc/ HTTP/1.1");
+    client.println("POST /labadmin/labadmin/opendoorbynfc/ HTTP/1.1");
     client.println("Host: labchat.officine.cc:8443");
     client.println("Authorization: Token " + DEVICE_TOKEN);
     client.println("Content-Type:  application/json");

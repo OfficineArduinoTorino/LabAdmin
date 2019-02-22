@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('hourlyCost', models.FloatField(default=0.0)),
                 ('mac', models.CharField(max_length=30)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Category')),
+                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.Category')),
             ],
         ),
         migrations.CreateModel(
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 ('finishWork', models.DateTimeField()),
                 ('shutdownDevice', models.DateTimeField()),
                 ('inWorking', models.BooleanField(default=True)),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Device')),
+                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.Device')),
             ],
         ),
         migrations.CreateModel(
@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=50)),
                 ('role_kind', models.IntegerField(choices=[(0, 'Door Access'), (1, 'Use Device')])),
                 ('valid', models.BooleanField(default=True)),
-                ('categories', models.ManyToManyField(blank=True, to='labAdmin.Category')),
+                ('categories', models.ManyToManyField(blank=True, to='labadmin.Category')),
             ],
         ),
         migrations.CreateModel(
@@ -119,33 +119,33 @@ class Migration(migrations.Migration):
                 ('endSubscription', models.DateField()),
                 ('needSubscription', models.BooleanField(default=True)),
                 ('nfcId', models.BigIntegerField(null=True, unique=True)),
-                ('groups', models.ManyToManyField(to='labAdmin.Group')),
+                ('groups', models.ManyToManyField(to='labadmin.Group')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddField(
             model_name='role',
             name='time_slots',
-            field=models.ManyToManyField(to='labAdmin.TimeSlot'),
+            field=models.ManyToManyField(to='labadmin.TimeSlot'),
         ),
         migrations.AddField(
             model_name='payment',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.UserProfile'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.UserProfile'),
         ),
         migrations.AddField(
             model_name='logdevice',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.UserProfile'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.UserProfile'),
         ),
         migrations.AddField(
             model_name='logaccess',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.UserProfile'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.UserProfile'),
         ),
         migrations.AddField(
             model_name='group',
             name='roles',
-            field=models.ManyToManyField(to='labAdmin.Role'),
+            field=models.ManyToManyField(to='labadmin.Role'),
         ),
     ]

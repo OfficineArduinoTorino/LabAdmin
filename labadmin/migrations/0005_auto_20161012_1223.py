@@ -9,13 +9,13 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labAdmin', '0004_logcredits'),
+        ('labadmin', '0004_logcredits'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='userprofile',
             name='card',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Card'),
+            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='labadmin.Card'),
         ),
     ]

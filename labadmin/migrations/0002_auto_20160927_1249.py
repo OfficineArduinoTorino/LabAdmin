@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labAdmin', '0001_initial'),
+        ('labadmin', '0001_initial'),
     ]
 
     operations = [
@@ -31,17 +31,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='logaccess',
             name='users',
-            field=models.ManyToManyField(to='labAdmin.UserProfile'),
+            field=models.ManyToManyField(to='labadmin.UserProfile'),
         ),
         migrations.AddField(
             model_name='logaccess',
             name='card',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Card'),
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='labadmin.Card'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='userprofile',
             name='card',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Card'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='labadmin.Card'),
         ),
     ]

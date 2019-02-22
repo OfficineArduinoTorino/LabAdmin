@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labAdmin', '0010_remove_logaccess_users'),
+        ('labadmin', '0010_remove_logaccess_users'),
     ]
 
     operations = [

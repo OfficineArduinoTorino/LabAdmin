@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.utils import timezone
 
-from labAdmin.models import UserProfile, Card
+from labadmin.models import UserProfile, Card
 
 
 def import_fablabto_users(users_json):

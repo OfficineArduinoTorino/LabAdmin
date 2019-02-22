@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'corsheaders',
     'versatileimagefield',
-    'labAdmin',
+    'labadmin',
 ]
 
 # REST_FRAMEWORK = {

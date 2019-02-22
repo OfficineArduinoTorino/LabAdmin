@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('labAdmin', '0003_card_credits'),
+        ('labadmin', '0003_card_credits'),
     ]
 
     operations = [
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('datetime', models.DateTimeField(default=django.utils.timezone.now)),
                 ('amount', models.IntegerField()),
                 ('from_admin', models.BooleanField(default=False)),
-                ('card', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Card')),
+                ('card', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.Card')),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),

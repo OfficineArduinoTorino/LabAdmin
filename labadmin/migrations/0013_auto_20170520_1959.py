@@ -9,7 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labAdmin', '0012_auto_20170518_2158'),
+        ('labadmin', '0012_auto_20170518_2158'),
     ]
 
     operations = [
@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('code', models.CharField(max_length=64)),
-                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.Device')),
-                ('userprofile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labAdmin.UserProfile')),
+                ('device', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.Device')),
+                ('userprofile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labadmin.UserProfile')),
             ],
         ),
         migrations.AlterUniqueTogether(

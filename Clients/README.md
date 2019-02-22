@@ -7,7 +7,7 @@ This repo contains example code to interface labadmin with different hardware cl
 
 All clients are basically sending, in different languages and hardwares, the very same POST/GET calls:
 
-As stated in [```views.py```](https://github.com/OfficineArduinoTorino/LabAdmin/blob/master/labAdmin/views.py)
+As stated in [```views.py```](https://github.com/OfficineArduinoTorino/LabAdmin/blob/master/labadmin/views.py)
 
 ## API
 
@@ -15,7 +15,7 @@ As stated in [```views.py```](https://github.com/OfficineArduinoTorino/LabAdmin/
 
 Post:
 ```
-<Server>/labadmin/labAdmin/nfc/users/
+<Server>/labadmin/labadmin/nfc/users/
 ```
 Body:
 ```
@@ -26,7 +26,7 @@ Body:
 
 POST:
 ```
-<Server>/labadmin/labAdmin/device/use/start/
+<Server>/labadmin/labadmin/device/use/start/
 ```
 Body:
 ```
@@ -42,7 +42,7 @@ Content-Type    application/json
 
 POST:
 ```
-<Server>/labadmin/labAdmin/device/use/stop/
+<Server>/labadmin/labadmin/device/use/stop/
 ```
 Body:
 ```
@@ -58,7 +58,7 @@ Content-Type    application/json
 
 POST:
 ```
-<Server>/labadmin/labAdmin/card/credits/
+<Server>/labadmin/labadmin/card/credits/
 ```
 Body:
 ```
@@ -70,5 +70,5 @@ Body:
 
 GET:
 ```
-<Server>/labadmin/labAdmin/card/credits/?nfc_id=YOUR_NFC_ID
+<Server>/labadmin/labadmin/card/credits/?nfc_id=YOUR_NFC_ID
 ```

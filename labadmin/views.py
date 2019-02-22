@@ -12,11 +12,11 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.views.generic.base import TemplateResponseMixin
 
-from labAdmin.forms import UserProfileForm
-from labAdmin.serializers import (
+from labadmin.forms import UserProfileForm
+from labadmin.serializers import (
     UserProfileSerializer, CardSerializer, CardUpdateSerializer
 )
-from labAdmin.models import (
+from labadmin.models import (
     Card,
     Device,
     Group,
